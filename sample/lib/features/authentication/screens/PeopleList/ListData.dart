@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sample/Models/UserData.dart';
-
+import 'package:share_plus/share_plus.dart'; // Import share_plus package
 
 class BirthdayDetailPage extends StatelessWidget {
   final User user;
@@ -43,7 +43,8 @@ class BirthdayDetailPage extends StatelessWidget {
               onPressed: () {
                 final String verses = _versesController.text;
                 if (verses.isNotEmpty) {
-                 // Share.share(verses);
+                  // Use Share Plus to share the entered text
+                  Share.share(verses);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Please enter some verses.')),

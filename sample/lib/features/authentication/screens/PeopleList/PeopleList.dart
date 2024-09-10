@@ -23,6 +23,7 @@ class _PeopleListState extends State<PeopleList> {
     super.initState();
     fetchData();
   }
+
   void fetchData() async {
     final url = 'http://10.0.2.2:5064/api/user/getBirthdayForDays';
 
@@ -37,28 +38,41 @@ class _PeopleListState extends State<PeopleList> {
             users = List<User>.from(data['data'].map((user) => User.fromJson(user)));
             filteredUsers = users; // Show all users by default
             isLoading = false;
+
+            if (users.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('No data found')),
+              );
+            }
           });
         } else {
+          setState(() {
+            isLoading = false;
+          });
           print('Error: ${data['message']}');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(data['message'] ?? 'Failed to retrieve data')),
           );
         }
       } else {
+        setState(() {
+          isLoading = false;
+        });
         print('Request failed with status: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Request failed with status: ${response.statusCode}')),
         );
       }
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print('An error occurred: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
     }
   }
-
-
 
   void filterUsers(String filter) {
     DateTime today = DateTime.now();
@@ -67,7 +81,6 @@ class _PeopleListState extends State<PeopleList> {
 
     setState(() {
       if (filter == 'Yesterday') {
-        //filteredUsers = users.where((user) => user.dateOfBirth.month == yesterday.month && user.dateOfBirth.day == yesterday.day).toList();
         filteredUsers = users.where((user) => _matchesDayAndMonth(user.dateOfBirth, yesterday)).toList();
       } else if (filter == 'Today') {
         filteredUsers = users.where((user) => _matchesDayAndMonth(user.dateOfBirth, today)).toList();
@@ -91,7 +104,6 @@ class _PeopleListState extends State<PeopleList> {
     return '${parts[2]}-${parts[1]}-${parts[0]}';
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,6 +114,13 @@ class _PeopleListState extends State<PeopleList> {
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
+          : filteredUsers.isEmpty
+          ? Center(
+        child: Text(
+          'No data found',
+          style: TextStyle(fontSize: 18, color: Colors.black54),
+        ),
+      )
           : Column(
         children: <Widget>[
           Container(
@@ -111,8 +130,7 @@ class _PeopleListState extends State<PeopleList> {
               scrollDirection: Axis.horizontal,
               children: ['Yesterday', 'Today', 'Tomorrow']
                   .map((e) => Container(
-                margin: EdgeInsets.symmetric(
-                    vertical: 8.0, horizontal: 8.0),
+                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                 child: OutlinedButton(
                   onPressed: () {
                     filterUsers(e);
@@ -134,8 +152,7 @@ class _PeopleListState extends State<PeopleList> {
               itemBuilder: (context, index) {
                 final user = filteredUsers[index];
                 return Container(
-                  margin:
-                  EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(13),
@@ -152,8 +169,8 @@ class _PeopleListState extends State<PeopleList> {
                     leading: Image.network(
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSdygFdB_FfadQmmrDZUgLeJTILZBTU0d9Ffs3mLpYSh2rulaJo&usqp=CAU',
                       fit: BoxFit.cover,
-                      width: 60,  // Adjust the width as needed
-                      height: 60, // Adjust the height as needed
+                      width: 60,
+                      height: 60,
                     ),
                     title: Text(
                       user.userName,
@@ -174,7 +191,7 @@ class _PeopleListState extends State<PeopleList> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );
