@@ -1,16 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:sample/common/styles/spacing_styles.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sample/features/authentication/screens/PeopleList/PeopleList.dart';
 import 'package:sample/features/authentication/screens/signup/signupScreen.dart';
-import 'package:sample/utils/constants/colors.dart';
-import 'package:sample/utils/constants/image_strings.dart';
-import 'package:sample/utils/constants/sizes.dart';
-import 'package:sample/utils/helphers/helper_functions.dart';
+import 'package:sample/utils/constants/api_constants.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../../../API/API_Methods.dart';
+
 class LoginScreen extends StatefulWidget {
-  // const LoginScreen({required Key key}) : super(key: key);
   const LoginScreen() : super();
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -22,6 +19,45 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _passwordController = TextEditingController();
   bool _showUsernameError = false;
   bool _showPasswordError = false;
+  commonApi apiRequest = commonApi();
+
+  // Make API request
+  void call_login_API(String username, String password) async {
+    final parameters = {
+      'email': username,
+      'password': password,
+    };
+    final result = await apiRequest.fetch_Api_Response(ApiUrl.base + ApiUrl.login, HttpType.POST, parameters);
+
+    if (result.success) {
+
+      // Navigate to PeopleList page if the login is successful
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PeopleList()),
+        );
+      }
+    } else {
+      print(result.message);
+      if (result.responseBody != null) {
+        print('Error Response: ${result.responseBody}');
+        // You can also show a dialog or a snackbar to notify the user of the error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.message ?? 'Login failed')),
+        );
+        Fluttertoast.showToast(
+            msg: "Username or password not valid",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  ///Header Sections
+  /// Header Section
   Widget _header(context) {
     return const Column(
       children: [
@@ -52,12 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
           "Welcome Back",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
-        Text("Enter your credential to login"),
+        Text("Enter your credentials to login"),
       ],
     );
   }
 
-  ///Text Fields
+  /// Text Fields
   Widget _inputField(context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -68,9 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
             setState(() {
               _showUsernameError = value.isEmpty;
             });
-            // if (kDebugMode) {
-            //   print("Typed value: $value");
-            // }
           },
           maxLength: 30,
           decoration: InputDecoration(
@@ -101,10 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             fillColor: Colors.purple.withOpacity(0.1),
             filled: true,
-            prefixIcon: Icon(Icons.password),
+            prefixIcon: const Icon(Icons.password),
             suffixIcon: IconButton(
-              icon:
-                  Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
               onPressed: () {
                 setState(() {
                   _showPassword = !_showPassword;
@@ -122,10 +154,14 @@ class _LoginScreenState extends State<LoginScreen> {
               _showUsernameError = _usernameController.text.isEmpty;
               _showPasswordError = _passwordController.text.isEmpty;
             });
+
+            if (!_showUsernameError && !_showPasswordError) {
+              call_login_API(_usernameController.text, _passwordController.text);
+            }
           },
           style: ElevatedButton.styleFrom(
-            shape: StadiumBorder(),
-            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             backgroundColor: Colors.purple,
           ),
           child: const Text(
@@ -141,19 +177,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _forgotPassword(context) {
     return TextButton(
       onPressed: () {},
-      child: Text(
+      child: const Text(
         "Forgot password?",
         style: TextStyle(color: Colors.purple),
       ),
     );
   }
 
-  /// Signup page
+  /// Signup Page
   Widget _signup(context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Dont have an account? "),
+        const Text("Don't have an account? "),
         TextButton(
           onPressed: () {
             Navigator.push(

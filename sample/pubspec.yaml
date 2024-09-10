@@ -17,13 +17,17 @@ dependencies:
   # icons
 #  flutter_icons: ^1.0.0
   cupertino_icons: ^1.0.6
+  share_plus: ^10.0.0
   get: ^4.6.5
   url_launcher: ^6.0.0
   intl: ^0.17.0
-  http: ^0.13.3
+  http: ^1.2.2
   get_storage: ^2.0.3
   logger: ^2.2.0
+  lottie: ^3.1.2
   top_snackbar_flutter: ^3.1.0
+  fluttertoast: ^8.2.8
+
 
 #---- Packages End----#
 
@@ -32,15 +36,17 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^3.0.0
+  fade_out_particle: ^1.2.1
 
 flutter:
   uses-material-design: true
 
 #----Local Assets----#
 assets:
-  - assets/icons/brands/
-  - assets/images
-  - assets/logos
+ # - assets/icons/brands/
+  - lib/Assets/splashScreenLottie.json
+#  - assets/images
+#  - assets/logos
 
 #----Local Fonts----#
 fonts:

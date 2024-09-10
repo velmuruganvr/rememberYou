@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sample/SplashScreen.dart';
 import 'package:sample/features/authentication/screens/login/login.dart';
-import 'package:sample/splash_screen.dart';
 import 'app.dart';
 
 /// ----- entry point of the flutter app ----
